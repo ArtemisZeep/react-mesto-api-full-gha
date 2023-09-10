@@ -1,0 +1,6 @@
+@media screen and (max-width: 899px){
+
+.header__close-burger-button_visible {
+  display: block;
+}
+}
