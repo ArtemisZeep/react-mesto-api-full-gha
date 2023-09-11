@@ -5,7 +5,7 @@ function checkResponse(res) {
   return Promise.reject(res.status);
 }
 
-export const BASE_URL = "api.mesto.artemiszeep.nomoredomainsicu.ru";
+export const BASE_URL = "https://api.mesto.artemiszeep.nomoredomainsicu.ru";
 
 export function registerUser(password, email) {
   console.log(email);

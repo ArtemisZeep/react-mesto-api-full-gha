@@ -8,6 +8,7 @@ const auth = require('./middlewares/auth');
 const { handleAllErrors } = require('./errors/errors');
 const invalidRoutes = require('./routes/invalidURLs');
 const { PATTERN } = require('./utils/constants');
+const cors = require('cors');
 
 const {
   createUser,
@@ -20,6 +21,7 @@ const {
 } = process.env;
 
 const app = express();
+app.use(cors());
 
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
@@ -27,6 +29,10 @@ mongoose.connect(MONGODB_URI, {
 
 app.use(cookieParser());
 app.use(express.json());
+
+
+
+
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({
