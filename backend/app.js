@@ -26,13 +26,9 @@ mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
-app.use(corsHandler);
 app.use(cookieParser());
 app.use(express.json());
-
-
-
-
+app.use(corsHandler);
 
 app.post('/signin', celebrate({
   body: Joi.object().keys({

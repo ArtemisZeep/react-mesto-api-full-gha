@@ -20,11 +20,11 @@ import Accept from "../images/login/Accept.svg";
 import Error from "../images/login/Error.svg";
 
 const api = new Api({
-  baseUrl: "https://mesto.nomoreparties.co/v1/cohort-66/",
+  baseUrl: "http://api.mesto.artemiszeep.nomoredomainsicu.ru",
   headers: {
-    authorization: "d76615bd-c18d-4153-a44e-90229c59fcdc",
     "Content-Type": "application/json",
   },
+  credentials: 'include',
 });
 
 
