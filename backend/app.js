@@ -8,7 +8,7 @@ const auth = require('./middlewares/auth');
 const { handleAllErrors } = require('./errors/errors');
 const invalidRoutes = require('./routes/invalidURLs');
 const { PATTERN } = require('./utils/constants');
-const cors = require('cors');
+const corsHandler = require('./middlewares/corsHandler');
 
 const {
   createUser,
@@ -21,12 +21,12 @@ const {
 } = process.env;
 
 const app = express();
-app.use(cors());
 
 mongoose.connect(MONGODB_URI, {
   autoIndex: true,
 });
 
+app.use(corsHandler);
 app.use(cookieParser());
 app.use(express.json());
 
