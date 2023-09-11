@@ -17,7 +17,7 @@ const USERS_NOT_FOUND_MESSAGE = 'Пользователи не найдены';
 const CARDS_NOT_FOUND_MESSAGE = 'Карточки не найдены';
 const CARD_NOT_AUTHORIZED_DELETION_MESSAGE = 'Попытка удаления чужой карточки';
 const SUCCESSFUL_AUTHORIZATION_MESSAGE = 'Успешная авторизация';
-const SECRET_KEY = '55c72cc95418379bd0822186af71bb1f';
+const SECRET_KEY = process.env.NODE_ENV === 'production' ? process.env.JWT_SECRET : 'dev';
 const JWT_TOKEN_EXPIRES = '7d';
 const COOKIE_MAX_AGE = 3600000;
 //  eslint-disable-next-line
