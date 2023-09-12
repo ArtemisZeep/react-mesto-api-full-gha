@@ -13,4 +13,4 @@ IP-адрес 51.250.30.41
 
 Frontend https://mesto.artemiszeep.nomoredomainsicu.ru/
 
-Backend api.mesto.artemiszeep.nomoredomainsicu.ru/
+Backend http://api.mesto.artemiszeep.nomoredomainsicu.ru/

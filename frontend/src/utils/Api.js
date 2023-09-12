@@ -1,8 +1,7 @@
 export default class Api {
-  constructor({ baseUrl, headers, credentials }) {
+  constructor({ baseUrl}) {
     this._link = baseUrl;
-    this._headers = headers;
-    this._credentials = credentials;
+    this._credentials = 'include';
   }
 
   // Ответ сервера
@@ -16,10 +15,13 @@ export default class Api {
 
   // Получение данных пользователя
   getUserData() {
-    return fetch(`${this._link}users/me`, {
+    return fetch(`${this._link}/users/me`, {
       method: "GET",
       credentials: this._credentials,
-      headers: this._headers,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     }).then((res) => {
       return this._processingServerResponse(res);
     });
@@ -27,10 +29,13 @@ export default class Api {
 
   // отправка данных пользователя
   sendUserData(profileData) {
-    return fetch(`${this._link}users/me`, {
-      headers: this._headers,
-      credentials: this._credentials,
+    return fetch(`${this._link}/users/me`, {
       method: "PATCH",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({
         name: profileData.name,
         about: profileData.description,
@@ -42,20 +47,26 @@ export default class Api {
 
   // Инициализация карточек
   getInitialCards() {
-    return fetch(`${this._link}cards`, {
+    return fetch(`${this._link}/cards`, {
       method: "GET",
       credentials: this._credentials,
-      headers: this._headers,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     }).then((res) => {
       return this._processingServerResponse(res);
     });
   }
   // Добавление новой карточки
   addNewCard({ name, link }) {
-    return fetch(`${this._link}cards`, {
-      headers: this._headers,
-      credentials: this._credentials,
+    return fetch(`${this._link}/cards`, {
       method: "POST",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ name, link }),
     }).then((res) => {
       return this._processingServerResponse(res);
@@ -63,10 +74,13 @@ export default class Api {
   }
   // Удаление карточки
   deleteCard(cardId) {
-    return fetch(`${this._link}cards/${cardId}`, {
-      credentials: this._credentials,
-      headers: this._headers,
+    return fetch(`${this._link}/cards/${cardId}`, {
       method: "DELETE",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     }).then((res) => {
       return this._processingServerResponse(res);
     });
@@ -75,10 +89,13 @@ export default class Api {
   // Отправка нового аватара
   sendAvatarData(link) {
     console.log(link);
-    return fetch(`${this._link}users/me/avatar`, {
-      credentials: this._credentials,
-      headers: this._headers,
+    return fetch(`${this._link}/users/me/avatar`, {
       method: "PATCH",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
       body: JSON.stringify({ avatar: link.avatar }),
     }).then((res) => {
       return this._processingServerResponse(res);
@@ -86,20 +103,26 @@ export default class Api {
   }
   // Отправка лайка
   putCardLike(cardId) {
-    return fetch(`${this._link}cards/${cardId}/likes`, {
-      credentials: this._credentials,
-      headers: this._headers,
+    return fetch(`${this._link}/cards/${cardId}/likes`, {
       method: "PUT",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     }).then((res) => {
       return this._processingServerResponse(res);
     });
   }
   // Удаление лайка
   deleteCardLike(cardId) {
-    return fetch(`${this._link}cards/${cardId}/likes`, {
-      credentials: this._credentials,
-      headers: this._headers,
+    return fetch(`${this._link}/cards/${cardId}/likes`, {
       method: "DELETE",
+      credentials: this._credentials,
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+      },
     }).then((res) => {
       return this._processingServerResponse(res);
     });

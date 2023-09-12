@@ -21,7 +21,7 @@ const SECRET_KEY = process.env.NODE_ENV === 'production' ? process.env.JWT_SECRE
 const JWT_TOKEN_EXPIRES = '7d';
 const COOKIE_MAX_AGE = 3600000;
 //  eslint-disable-next-line
-const PATTERN = `/http(s)?:\/\/(www.)?[a-z0-9\.\-]+\/[a-z0-9\.\-_~:\/?#\[\]@!$&'()*+,;=]+/`;
+const PATTERN = /http(s)?:\/\/(www\.)?[a-z0-9\.\-]+\/[a-z0-9\.\-_~:\/?#\[\]@!$&'()*+,;=]+/;
 
 module.exports = {
   GENERAL_ERROR,

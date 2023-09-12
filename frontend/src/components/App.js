@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 
 import { Route, Routes, Navigate, useNavigate } from "react-router-dom";
 import Header from "./Header";
@@ -21,10 +21,6 @@ import Error from "../images/login/Error.svg";
 
 const api = new Api({
   baseUrl: "http://api.mesto.artemiszeep.nomoredomainsicu.ru",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  credentials: 'include',
 });
 
 
@@ -39,28 +35,125 @@ function App() {
   const [currentUser, setCurrentUser] = React.useState({});
   const [cards, setCards] = React.useState([]);
   const [isProfilePopupOpened, setIsProfilePopupOpened] = React.useState(false);
-  const [isLoggedIn, setIsLoggedIn] = React.useState(false);
   const [emailName, setEmailName] = React.useState(null);
   const [popupImage, setPopupImage] = React.useState("");
   const [popupTitle, setPopupTitle] = React.useState("");
   const [infoTooltip, setInfoTooltip] = React.useState(false);
   const [loggedIn, setLoggedIn] = React.useState(false);
+  const [isFetching, setFetching] = React.useState(false);
+  const [isLoading, setLoading] = React.useState(true);
+  const [isRegisterLoading, setIsRegisterLoading] = React.useState(false);
+  const [isLoginLoading, setIsLoginLoading] = React.useState(false);
 
+
+
+  
+
+  const tokenCheck = useCallback(() => { 
+    const authorized = localStorage.getItem('authorized')
+    console.log(authorized)
+    if (authorized) {
+      auth
+        .getToken()
+        .then((res) => {
+          console.log(res)
+          if (res) {
+            setLoggedIn(true);
+            setEmailName(res.email);
+            navigate("/");
+          }
+        })
+        .catch((err) => {
+          console.log(`Возникла ошибка, ${err}`);
+        });
+    }
+  }, [navigate]);
 
   useEffect(() => {
+    tokenCheck();
+  }, []);
+
+  useEffect(() => {
+    if (loggedIn) {
     Promise.all([api.getUserData(), api.getInitialCards()])
       .then(([profileInfo, cards]) => {
+        console.log(profileInfo)
         setCurrentUser(profileInfo);
         setCards(cards);
         console.log(cards)
       })
       .catch((err) => {
         console.log(`Возникла глобальная ошибка, ${err}`);
+      })
+}},[loggedIn]);
+
+  const handleRegister = (email, password) => {
+    setIsRegisterLoading(true);
+    return auth
+      .registerUser(password, email)
+      .then(() => {
+        setPopupImage(Accept);
+        setPopupTitle("Вы успешно зарегистрировались!");
+        navigate("/sign-in");
+      })
+      .catch(() => {
+        setPopupImage(Error);
+        setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setIsRegisterLoading(false);
+        }, 1500);
       });
-  }, []);
+  };
+
+  const handleLogin = (email, password) => {
+    if (!email || !password) {
+      return;
+    }
+    auth
+      .loginUser(password, email)
+      .then((res) => {
+        localStorage.setItem('authorized', 'true');
+        setLoggedIn(true);
+        setEmailName(email);
+        navigate("/");
+      })
+      .catch(() => {
+        setPopupImage(Error);
+        setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
+        handleInfoTooltip();
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setIsLoginLoading(false);
+        }, 1500);
+      });
+  };
+
+
+  function signOut() {
+    auth
+      .signout()
+      .then(() => {
+        localStorage.removeItem('authorized')
+        setLoggedIn(false);
+        navigate("/sign-in");
+  })
+     .catch((err) => { 
+       console.log(err);
+  });
+  }
+
+
+
+
+
+
 
 
   function handleUpdateUser(data) {
+    setFetching(true);
     api
       .sendUserData(data)
       .then((newProfileInfo) => {
@@ -69,22 +162,25 @@ function App() {
       })
       .catch((err) => {
         console.log(`Возникла ошибка, ${err}`);
-      });
+      })
+      .finally(() => setFetching(false));
   }
 
-  function handleAddPlaceSubmit(data) {
+  function handleAddPlaceSubmit(props) {
+    console.log(props)
     api
-      .addNewCard(data)
+      .addNewCard(props)
       .then((newCard) => {
         setCards([newCard, ...cards]);
         closeAllPopups();
       })
       .catch((err) => {
         console.log(`Возникла ошибка, ${err}`);
-      });
+      })
   }
 
   function handleAvatarUpdate(data) {
+    setFetching(true);
     api
       .sendAvatarData(data)
       .then((newAvatar) => {
@@ -93,7 +189,8 @@ function App() {
       })
       .catch((err) => {
         console.log(`Возникла ошибка, ${err}`);
-      });
+      })
+      .finally(() => setFetching(false));
   }
 
   function handleEditAvatarClick() {
@@ -201,74 +298,15 @@ function App() {
     isProfilePopupOpened,
   ]);
 
-  const handleLoggedIn = () => {
-    setLoggedIn(true);
-  };
+ 
 
   function handleInfoTooltip() {
     setInfoTooltip(true);
   }
 
-  useEffect(() => {
-    const jwt = localStorage.getItem("jwt");
-    if (jwt) {
-      auth
-        .getToken(jwt)
-        .then((res) => {
-          if (res) {
-            setIsLoggedIn(true);
-            setEmailName(res.data.email);
-          }
-        })
-        .catch((err) => {
-          console.log(`Возникла ошибка, ${err}`);
-        });
-    }
-  }, []);
 
-  useEffect(() => {
-    if (isLoggedIn === true) {
-      navigate("/");
-    }
-  }, [isLoggedIn, navigate]);
 
-  const handleRegister = (email, password) => {
-    auth
-      .registerUser(password, email)
-      .then(() => {
-        setPopupImage(Accept);
-        setPopupTitle("Вы успешно зарегистрировались!");
-        navigate("/sign-in");
-      })
-      .catch(() => {
-        setPopupImage(Error);
-        setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
-      })
-      .finally(handleInfoTooltip);
-  };
 
-  const handleLogin = (email, password) => {
-    auth
-      .loginUser(password, email)
-      .then((res) => {
-        localStorage.setItem("jwt", res.token);
-        setIsLoggedIn(true);
-        setEmailName(email);
-        navigate("/");
-      })
-      .catch(() => {
-        setPopupImage(Error);
-        setPopupTitle("Что-то пошло не так! Попробуйте ещё раз.");
-        handleInfoTooltip();
-      });
-  };
-
-  function signOut() {
-    setIsLoggedIn(false);
-    setEmailName(null);
-    navigate("/sign-in");
-    localStorage.removeItem("jwt");
-  }
 
   return (
     <CurrentUserContext.Provider value={currentUser}>
@@ -309,7 +347,7 @@ function App() {
                   />
                   <ProtectedRoute
                     component={Main}
-                    isLogged={isLoggedIn}
+                    isLogged={loggedIn}
                     onEditAvatar={handleEditAvatarClick}
                     onEditProfile={handleEditProfileClick}
                     onAddPlace={handleAddPlaceClick}
@@ -324,7 +362,7 @@ function App() {
 
             <Route
               path="*"
-              element={<Navigate to={isLoggedIn ? "/" : "/sign-in"} />}
+              element={<Navigate to={loggedIn ? "/" : "/sign-in"} />}
             />
           </Routes>
         </main>

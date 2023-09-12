@@ -1,6 +1,7 @@
-const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const { NODE_ENV, JWT_SECRET } = process.env;
 
 const {
   RESOURCE_NOT_FOUND,
@@ -36,40 +37,31 @@ async function getUsers(req, res, next) {
   }
 }
 
-async function createUser(req, res, next) {
+const createUser = (req, res, next) => {
   const {
     email, password, name, about, avatar,
   } = req.body;
-  if (!password) {
-    next(new BadRequestError(BAD_REQUEST_MESSAGE));
-  }
-
-  try {
-    const hash = await bcrypt.hash(password, 10);
-    const user = await User.create({
-      email,
-      password: hash,
-      name,
-      about,
-      avatar,
-    });
-    res.status(STATUS_OK_CREATED).send({
-      _id: user._id,
-      email: user.email,
-      name: user.name,
-      about: user.about,
-      avatar: user.avatar,
-    });
-  } catch (error) {
+  bcrypt.hash(password, 10)
+  .then((hash) => User.create({
+    name,
+    about,
+    avatar,
+    email,
+    password: hash, // записываем хеш в базу
+  }))
+  .then((user) => res.status(STATUS_OK_CREATED).send({ data: user }))
+  .catch((err) => {
+    if (err.code === 11000) {
+      next(new UserAlreadyExistsError(ALREADY_EXISTS_MESSAGE));
+      return;
+    }
     if (error.name === 'ValidationError') {
       next(new BadRequestError(BAD_REQUEST_MESSAGE));
-    } if (error.code === 11000) {
-      next(new UserAlreadyExistsError(ALREADY_EXISTS_MESSAGE));
     } else {
-      next(error);
+      next(err);
     }
-  }
-}
+  });
+};
 
 async function getUserById(req, res, next) {
   const userId = req.params.userId || req.user._id;
@@ -130,20 +122,26 @@ async function updateAvatar(req, res, next) {
   }
 }
 
-async function login(req, res, next) {
+const login = (req, res, next) => {
   const { email, password } = req.body;
-  try {
-    const user = await User.findUserByCredentials(email, password);
-    const token = jwt.sign({ _id: user._id }, SECRET_KEY, { expiresIn: JWT_TOKEN_EXPIRES });
+  return User.findUserByCredentials(email, password)
+  .then((user) => {
+    const token = jwt.sign({ _id: user._id }, JWT_SECRET, { expiresIn: JWT_TOKEN_EXPIRES });
     res.cookie('jwt', token, {
-      maxAge: COOKIE_MAX_AGE,
+      // token - наш JWT токен, который мы отправляем
+      maxAge: 3600000 * 24 * 7,
       httpOnly: true,
-      sameSite: true,
-    }).status(STATUS_OK).send({ message: SUCCESSFUL_AUTHORIZATION_MESSAGE });
-  } catch (error) {
-    next(error);
-  }
-}
+      sameSite: true, // указали браузеру посылать куки, только если запрос с того же домена
+    })
+    // отправим токен пользователю
+      .send({ message: 'Успешная авторизация' });
+  })
+  .catch((err) => next(err));
+};
+
+const logout = (req, res) => {
+  res.clearCookie('jwt').send({ message: 'Вы вышли из системы' });
+};
 
 module.exports = {
   createUser,
@@ -152,4 +150,5 @@ module.exports = {
   updateUser,
   updateAvatar,
   login,
+  logout
 };

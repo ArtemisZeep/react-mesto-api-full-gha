@@ -1,3 +1,5 @@
+require('dotenv').config();
+console.log(process.env.NODE_ENV);
 const express = require('express');
 const mongoose = require('mongoose');
 const cookieParser = require('cookie-parser');
@@ -9,15 +11,17 @@ const { handleAllErrors } = require('./errors/errors');
 const invalidRoutes = require('./routes/invalidURLs');
 const { PATTERN } = require('./utils/constants');
 const corsHandler = require('./middlewares/corsHandler');
+const { requestLogger, errorLogger } = require('./middlewares/logger');
 
 const {
   createUser,
   login,
+  logout,
 } = require('./controllers/users');
 
 const {
   PORT = 3000,
-  MONGODB_URI = 'mongodb://localhost:27017/mestodb',
+  MONGODB_URI = 'mongodb://127.0.0.1:27017/mestodb',
 } = process.env;
 
 const app = express();
@@ -28,6 +32,8 @@ mongoose.connect(MONGODB_URI, {
 
 app.use(cookieParser());
 app.use(express.json());
+
+app.use(requestLogger); // логгер реквестов
 app.use(corsHandler);
 
 app.post('/signin', celebrate({
@@ -49,14 +55,16 @@ app.post('/signup', celebrate({
 
 app.use(auth);
 
-app.use('/users', userRoutes);
-app.use('/cards', cardRoutes);
+app.use('/users', auth, userRoutes);
+app.use('/cards', auth, cardRoutes);
+app.get('/signout', auth, logout)
 
 // 404 Not Found Route
 app.use('*', invalidRoutes);
 
 // Error Handling Middleware
-app.use(errors());
+app.use(errorLogger); // логгер ошибок
+app.use(errors()); // ошибки валидации celebrate
 app.use(handleAllErrors);
 
 app.listen(PORT, () => {

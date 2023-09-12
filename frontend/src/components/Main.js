@@ -4,6 +4,7 @@ import { CurrentUserContext } from "../contexts/CurrentUserContext.js";
 
 function Main(props) {
   const currentUser = React.useContext(CurrentUserContext);
+  console.log(currentUser)
 
   return (
     <main className="main">
@@ -49,7 +50,7 @@ function Main(props) {
               card={card}
               link={card.link}
               name={card.name}
-              likes={card.likes.length}
+              likes={card.likes ? card.likes.length : 0}
               onCardClick={props.onCardClick}
               onCardLike={props.onCardLike}
               onCardDelete={props.onCardDelete}

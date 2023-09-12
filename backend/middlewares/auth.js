@@ -5,17 +5,24 @@ const { NODE_ENV, JWT_SECRET } = process.env;
 const { NotAuthorizedError } = require('../errors/errors');
 
 module.exports = (req, res, next) => {
-  const { jwt: token } = req.cookies;
+  const token = req.cookies.jwt;
+
 
   if (!token) {
-    next(new NotAuthorizedError('Необходима авторизация'));
+    return next(new NotAuthorizedError('Необходима авторизация 1'));
+  }
+  let payload;
+  try {
+    payload = jwt.verify(token, JWT_SECRET);
+    console.log('Необходима авторизация 2')
+    console.log(JWT_SECRET)
+  } catch (err) {
+    console.log('Необходима авторизация 3')
+    console.log(JWT_SECRET)
+    return next(new NotAuthorizedError('Необходима авторизация 3'));
   }
 
-  try {
-    const payload = jwt.verify(token, NODE_ENV === 'production' ? JWT_SECRET : 'dev-secret');
-    req.user = payload;
-    next();
-  } catch (err) {
-    next(new NotAuthorizedError('Необходима авторизация'));
-  }
+  req.user = payload;
+
+  next();
 };

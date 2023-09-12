@@ -27,7 +27,7 @@ async function createCard(req, res, next) {
   try {
     const card = await Card.create({ name, link, owner: req.user._id });
     const crd = await Card.findById(card._id).populate(['owner', 'likes']);
-    res.status(OK_CREATED).send({ data: crd });
+    res.status(OK_CREATED).send(crd);
   } catch (error) {
     if (error.name === 'ValidationError') {
       res.status(BAD_REQUEST).send({ message: BAD_REQUEST_MESSAGE });
@@ -48,7 +48,7 @@ async function deleteCard(req, res, next) {
 
     if (req.user._id === card.owner._id.toString()) {
       const deletedCard = await Card.findByIdAndRemove(req.params.cardId);
-      res.status(STATUS_OK).send({ data: deletedCard });
+      res.status(STATUS_OK).send(deletedCard);
     } else {
       throw new ForbiddenError(CARD_NOT_AUTHORIZED_DELETION_MESSAGE);
     }
@@ -76,7 +76,7 @@ async function setLike(req, res, next) {
         throw error;
       });
 
-    res.send({ data: card });
+    res.send(card);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError(BAD_REQUEST_MESSAGE));
@@ -101,7 +101,7 @@ async function removeLike(req, res, next) {
         throw error;
       });
 
-    res.send({ data: card });
+    res.send(card);
   } catch (error) {
     if (error.name === 'CastError') {
       next(new BadRequestError(BAD_REQUEST_MESSAGE));
