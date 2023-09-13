@@ -1,7 +1,5 @@
 [![Статус тестов](../../actions/workflows/tests.yml/badge.svg)](../../actions/workflows/tests.yml)
 
-# Адреса поменял, но бесконечно возникает ошибка 401 при регистрации, и ошибка 500 при отправке данных. что только не перепробовал, ничего не получается( Прошу помощи, если это возможно
-
 
 # react-mesto-api-full
 Репозиторий для приложения проекта `Mesto`, включающий фронтенд и бэкенд части приложения со следующими возможностями: авторизации и регистрации пользователей, операции с карточками и пользователями. Бэкенд расположите в директории `backend/`, а фронтенд - в `frontend/`. 
@@ -12,8 +10,8 @@
 
 ## Ссылки на проект
 
-IP-адрес 51.250.30.41
+IP-адрес 130.193.42.66
 
 Frontend https://mesto.artemiszeep.nomoredomainsicu.ru/
 
-Backend http://api.mesto.artemiszeep.nomoredomainsicu.ru/
+Backend https://api.mesto.artemiszeep.nomoredomainsicu.ru/

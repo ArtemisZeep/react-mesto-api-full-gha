@@ -20,7 +20,7 @@ import Accept from "../images/login/Accept.svg";
 import Error from "../images/login/Error.svg";
 
 const api = new Api({
-  baseUrl: "http://api.mesto.artemiszeep.nomoredomainsicu.ru",
+  baseUrl: "https://api.mesto.artemiszeep.nomoredomainsicu.ru",
 });
 
 
